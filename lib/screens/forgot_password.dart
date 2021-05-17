@@ -2,12 +2,11 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:palm_hills_club/screens/signin.dart';
 
 import '../constance.dart';
-import 'forgot_password.dart';
-import 'signup.dart';
 
-class signIn extends StatelessWidget {
+class ForgotPassword extends StatelessWidget {
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -32,50 +31,8 @@ class signIn extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
-                Container(
-                  height: MediaQuery.of(context).size.height * 0.2,
-                  width: MediaQuery.of(context).size.width * 0.4,
-                  decoration: BoxDecoration(
-                    color: Colors.transparent,
-                    image: DecorationImage(
-                      image: AssetImage(
-                        'assets/phc-logo.png',
-                      ),
-                      fit: BoxFit.fill,
-                      scale: 1,
-                      alignment: Alignment.center,
-                    ),
-                  ),
-                  // height: 365,
-                  // width: 364,
-                  // color: Colors.white,
-                  // child: Image.asset(
-                  //   'assets/phc-logo.png',
-                  //   fit: BoxFit.contain,
-                  //   height: 250,
-                  //   width: 250,
-                  //   // scale: 1.5,
-                  // ),
-                ),
                 SizedBox(
-                  height: 20.0,
-                ),
-                Text(
-                  'SIGN IN ',
-                  style: TextStyle(
-                      fontFamily: 'Gotham',
-                      fontWeight: FontWeight.bold,
-                      fontSize: 22.0),
-                  // GoogleFonts.(
-                  //   'Gotham',
-                  //   textStyle: Theme.of(context).textTheme.headline4,
-                  //   fontSize: 30.0,
-                  //   fontWeight: FontWeight.w700,
-                  //   color: Colors.black,
-                  // ),
-                ),
-                SizedBox(
-                  height: 20.0,
+                  height: 80.0,
                 ),
                 Padding(
                   padding: const EdgeInsets.all(10.0),
@@ -83,6 +40,40 @@ class signIn extends StatelessWidget {
                     key: _formKey,
                     child: Column(
                       children: <Widget>[
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            IconButton(
+                                icon: Icon(
+                                  Icons.arrow_back,
+                                  size: 35.0,
+                                ),
+                                onPressed: () {
+                                  Get.to(() => signIn());
+                                }),
+                            Padding(
+                              padding: const EdgeInsets.only(right: 120.0),
+                              child: Text(
+                                'Forgot Password',
+                                style: TextStyle(
+                                    fontFamily: 'Gotham',
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 22.0),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Text(
+                          'Please enter account information',
+                          style: TextStyle(
+                              fontFamily: 'Gotham',
+                              fontWeight: FontWeight.normal,
+                              fontSize: 16.0),
+                        ),
+                        SizedBox(
+                          height: 120.0,
+                        ),
                         Container(
                           width: MediaQuery.of(context).size.width * 0.90,
                           child: Theme(
@@ -102,7 +93,7 @@ class signIn extends StatelessWidget {
                                       ),
                                     ),
                                   ),
-                                  labelText: 'Email Address',
+                                  labelText: 'Phone Number',
                                   alignLabelWithHint: true),
                               // The validator receives the text that the user has entered.
                               validator: (value) {
@@ -125,16 +116,12 @@ class signIn extends StatelessWidget {
                                 focusColor: Colors.white,
                                 fillColor: Colors.white,
                                 filled: true,
-                                suffixIcon: Icon(
-                                  Icons.remove_red_eye,
-                                  color: Colors.black,
-                                ),
                                 border: OutlineInputBorder(
                                   borderRadius: const BorderRadius.all(
                                     Radius.circular(40.0),
                                   ),
                                 ),
-                                labelText: 'Password',
+                                labelText: 'Membership Number',
                                 alignLabelWithHint: true),
                             // The validator receives the text that the user has entered.
                             validator: (value) {
@@ -170,61 +157,55 @@ class signIn extends StatelessWidget {
                               ),
                             ),
                             onPressed: () {
-                              if (_formKey.currentState.validate()) {
-                                // If the form is valid, display a snackbar. In the real world,
-                                // you'd often call a server or save the information in a database.
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('Processing Data')));
-                              }
+                              Get.defaultDialog(
+                                backgroundColor: AppBackgroundColor,
+                                // actions: [okButton],
+                                title: '',
+                                content: Column(
+                                  children: [
+                                    RichText(
+                                      text: TextSpan(
+                                        text:
+                                            'A message has been sent to your email to change your password',
+                                        style: TextStyle(
+                                            color: Colors.black,
+                                            fontFamily: 'Gotham',
+                                            fontWeight: FontWeight.normal,
+                                            fontSize: 18.0),
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    SizedBox(
+                                      height: 20,
+                                    ),
+                                    Container(
+                                      padding: EdgeInsets.zero,
+                                      // margin: EdgeInsets.zero,
+                                      width: double.infinity,
+                                      height: 80,
+                                      color: cardCustom,
+                                      child: TextButton(
+                                        style: ButtonStyle(),
+                                        child: Text(
+                                          "Okay",
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontFamily: 'Gotham',
+                                              fontWeight: FontWeight.normal,
+                                              fontSize: 26.0),
+                                        ),
+                                        onPressed: () {
+                                          Get.to(() => signIn());
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
                             },
                             child: Text(
-                              'Sign In',
+                              'Submit',
                               style: TextStyle(fontSize: 25.0),
-                            ),
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            Get.to(() => ForgotPassword());
-                          },
-                          child: Text(
-                            'Forgot Password ?',
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 18.0,
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 120.0,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 40.0,
-                          ),
-                          child: Center(
-                            child: Row(
-                              children: [
-                                Text(
-                                  'Dont have an account?',
-                                  style: TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 18.0,
-                                  ),
-                                ),
-                                TextButton(
-                                  onPressed: () {
-                                    Get.to(() => signUp());
-                                  },
-                                  child: Text(
-                                    'Sign Up',
-                                    style: TextStyle(
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 20.0),
-                                  ),
-                                ),
-                              ],
                             ),
                           ),
                         ),

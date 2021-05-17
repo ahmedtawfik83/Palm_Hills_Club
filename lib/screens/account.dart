@@ -1,10 +1,13 @@
-import 'package:flutter/material.dart';
 import 'dart:ui';
+
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:palm_hills_club/screens/signup.dart';
 
-class accountSetup extends StatefulWidget {
-  accountSetup({Key key, this.title}) : super(key: key);
+import '../constance.dart';
+import 'home.dart';
 
+class accountSetup extends StatelessWidget {
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
   // how it looks.
@@ -14,35 +17,15 @@ class accountSetup extends StatefulWidget {
   // used by the build method of the State. Fields in a Widget subclass are
   // always marked "final".
 
-  final String title;
-
-  @override
-  _accountSetupState createState() => _accountSetupState();
-}
-
-class _accountSetupState extends State<accountSetup> {
   final _formKey = GlobalKey<FormState>();
   var _checkedValue = false;
-  // Country _selectedDialogCountry =
-  //     CountryPickerUtils.getCountryByPhoneCode('20');
-
-  MaterialColor colorCustom = MaterialColor(0xF121212, {
-    50: Color.fromRGBO(136, 14, 79, .1),
-    100: Color.fromRGBO(136, 14, 79, .2),
-    200: Color.fromRGBO(136, 14, 79, .3),
-    300: Color.fromRGBO(136, 14, 79, .4),
-    400: Color.fromRGBO(136, 14, 79, .5),
-    500: Color.fromRGBO(136, 14, 79, .6),
-    600: Color.fromRGBO(136, 14, 79, .7),
-    700: Color.fromRGBO(136, 14, 79, .8),
-    800: Color.fromRGBO(136, 14, 79, .9),
-    900: Color.fromRGBO(136, 14, 79, 1),
-  });
+// Country _selectedDialogCountry =
+//     CountryPickerUtils.getCountryByPhoneCode('20');
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppBackgroundColor,
       // appBar: AppBar(
       //   // Here we take the value from the MyHomePage object that was created by
       //   // the App.build method, and use it to set our appbar title.
@@ -59,7 +42,7 @@ class _accountSetupState extends State<accountSetup> {
             width: MediaQuery.of(context).size.width,
             color: Colors.white,
             child: Padding(
-              padding: const EdgeInsets.only(top: 60.0),
+              padding: const EdgeInsets.only(top: 50.0),
               child: Center(
                 // Center is a layout widget. It takes a single child and positions it
                 // in the middle of the parent.
@@ -106,95 +89,91 @@ class _accountSetupState extends State<accountSetup> {
                     SizedBox(
                       height: 20.0,
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Form(
-                        key: _formKey,
-                        child: Column(
-                          children: <Widget>[
-                            SizedBox(
-                              height: 20.0,
-                            ),
-                            Container(
-                              width: MediaQuery.of(context).size.width * 0.90,
-                              child: TextFormField(
-                                keyboardType: TextInputType.text,
-                                cursorColor: Colors.black,
-                                // keyboardType: inputType,
-                                decoration: InputDecoration(
-                                    fillColor: Colors.white,
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.all(
-                                        Radius.circular(
-                                          40.0,
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            children: <Widget>[
+                              SizedBox(
+                                height: 20.0,
+                              ),
+                              Container(
+                                width: MediaQuery.of(context).size.width * 0.90,
+                                child: TextFormField(
+                                  keyboardType: TextInputType.text,
+                                  cursorColor: Colors.black,
+                                  // keyboardType: inputType,
+                                  decoration: InputDecoration(
+                                      fillColor: Colors.white,
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.all(
+                                          Radius.circular(
+                                            40.0,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    labelText: 'Password',
-                                    alignLabelWithHint: true),
-                                // The validator receives the text that the user has entered.
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Please enter your Password';
-                                  }
-                                  return null;
-                                },
+                                      labelText: 'Password',
+                                      alignLabelWithHint: true),
+                                  // The validator receives the text that the user has entered.
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter your Password';
+                                    }
+                                    return null;
+                                  },
+                                ),
                               ),
-                            ),
-                            SizedBox(
-                              height: 20.0,
-                            ),
-                            Container(
-                              width: MediaQuery.of(context).size.width * 0.90,
-                              child: TextFormField(
-                                obscureText: true,
-                                decoration: InputDecoration(
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.all(
-                                        Radius.circular(40.0),
+                              SizedBox(
+                                height: 10.0,
+                              ),
+                              Container(
+                                width: MediaQuery.of(context).size.width * 0.90,
+                                child: TextFormField(
+                                  obscureText: true,
+                                  decoration: InputDecoration(
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.all(
+                                          Radius.circular(40.0),
+                                        ),
                                       ),
-                                    ),
-                                    labelText: 'Confirm Password',
-                                    alignLabelWithHint: true),
-                                // The validator receives the text that the user has entered.
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Please enter your Password';
-                                  }
-                                  return null;
-                                },
+                                      labelText: 'Confirm Password',
+                                      alignLabelWithHint: true),
+                                  // The validator receives the text that the user has entered.
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter your Password';
+                                    }
+                                    return null;
+                                  },
+                                ),
                               ),
-                            ),
-                            SizedBox(
-                              height: 20.0,
-                            ),
-                            CheckboxListTile(
-                              title: Text(
-                                'I have read and agreed to the Terms & Condtions provided.',
-                                style: TextStyle(color: Colors.grey),
-                              ),
-                              value: _checkedValue,
-                              onChanged: (newValue) {
-                                setState(() {
+                              CheckboxListTile(
+                                title: Text(
+                                  'I have read and agreed to the Terms & Condtions provided.',
+                                  style: TextStyle(color: Colors.grey),
+                                ),
+                                value: _checkedValue,
+                                onChanged: (newValue) {
                                   _checkedValue = newValue;
-                                });
-                              },
-                              activeColor: Colors.grey,
-                              checkColor: Colors.black,
-                              controlAffinity: ListTileControlAffinity
-                                  .leading, //  <-- leading Checkbox
-                            ),
-                            SizedBox(
-                              height: 20.0,
-                            ),
-                            Container(
-                              height: 50.0,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                color: Colors.white,
+                                },
+                                activeColor: Colors.grey,
+                                checkColor: Colors.black,
+                                controlAffinity: ListTileControlAffinity
+                                    .leading, //  <-- leading Checkbox
                               ),
-                              width: MediaQuery.of(context).size.width * 0.60,
-                              child: ElevatedButton(
+                              SizedBox(
+                                height: 10.0,
+                              ),
+                              Container(
+                                height: 50.0,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: Colors.white,
+                                ),
+                                width: MediaQuery.of(context).size.width * 0.60,
+                                child: ElevatedButton(
                                   style: ButtonStyle(
                                     foregroundColor:
                                         MaterialStateProperty.all<Color>(
@@ -212,80 +191,41 @@ class _accountSetupState extends State<accountSetup> {
                                     ),
                                   ),
                                   onPressed: () {
-                                    // Navigator.push(
-                                    //   context,
-                                    //   MaterialPageRoute(
-                                    //     builder: (context) => confirmAccount(),
-                                    //   ),
-                                    // );
-                                    // if (_formKey.currentState.validate()) {
-                                    //   // If the form is valid, display a snackbar. In the real world,
-                                    //   // you'd often call a server or save the information in a database.
-                                    //   ScaffoldMessenger.of(context)
-                                    //       .showSnackBar(SnackBar(
-                                    //           content:
-                                    //               Text('Processing Data')));
-                                    // }
+                                    Get.to(() => Home(),
+                                        preventDuplicates: true);
                                   },
                                   child: Text(
                                     'Get Started',
                                     style: TextStyle(fontSize: 25.0),
-                                  )),
-                            ),
-                            SizedBox(
-                              height: 100.0,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 40.0,
-                              ),
-                              child: Center(
-                                child: TextButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => signUp(),
-                                      ),
-                                    );
-                                  },
-                                  child: Text(
-                                    'Return to sign up',
-                                    style: TextStyle(
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 20.0),
                                   ),
                                 ),
-
-                                // Container(
-                                //   width: MediaQuery.of(context).size.width *
-                                //       0.9,
-                                //   height: 40.0,
-                                //   child: Row(
-                                //     crossAxisAlignment:
-                                //         CrossAxisAlignment.start,
-                                //     mainAxisAlignment:
-                                //         MainAxisAlignment.spaceAround,
-                                //     children: [
-                                //       CheckboxListTile(
-                                //         title: Text("title text"),
-                                //         value: checkedValue,
-                                //         onChanged: (newValue) {
-                                //           setState(() {
-                                //             checkedValue = newValue;
-                                //           });
-                                //         },
-                                //         controlAffinity: ListTileControlAffinity
-                                //             .leading, //  <-- leading Checkbox
-                                //       ),
-                                //       Text('data'),
-                                //     ],
-                                //   ),
-                                // ),
                               ),
-                            ),
-                          ],
+                              SizedBox(
+                                height: 10.0,
+                              ),
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 40.0,
+                                  ),
+                                  child: Center(
+                                    child: TextButton(
+                                      onPressed: () {
+                                        Get.to(() => signUp());
+                                      },
+                                      child: Text(
+                                        'Return to sign up',
+                                        style: TextStyle(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 20.0),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
