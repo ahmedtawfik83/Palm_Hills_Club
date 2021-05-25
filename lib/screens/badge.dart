@@ -9,6 +9,7 @@ class Badge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         automaticallyImplyLeading: true,
         leading: IconButton(
@@ -26,7 +27,7 @@ class Badge extends StatelessWidget {
               color: Colors.black,
               fontFamily: 'Gotham',
               fontWeight: FontWeight.normal,
-              fontSize: 26.0),
+              fontSize: 20.0),
         ),
         centerTitle: true,
         actions: [
@@ -42,80 +43,79 @@ class Badge extends StatelessWidget {
         ],
       ),
       backgroundColor: AppBackgroundColor,
-      body: Container(
-        height: MediaQuery.of(context).size.height,
-        width: MediaQuery.of(context).size.width,
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Image(
+      body: SingleChildScrollView(
+        child: Container(
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
+          child: Column(
+            children: [
+              Image(
                 image: AssetImage(
                   'assets/yassin.png',
                 ),
-                height: 100.0,
-                width: 100.0,
+                height: MediaQuery.of(context).size.height * 0.2,
+                width: MediaQuery.of(context).size.width * 0.2,
               ),
-            ),
-            Text(
-              'Yassen Mansour',
-              style: TextStyle(
-                  color: Colors.black,
-                  fontFamily: 'Gotham',
-                  fontWeight: FontWeight.normal,
-                  fontSize: 20.0),
-            ),
-            Text(
-              'ID : 2233 4422 33444',
-              style: TextStyle(
-                  color: Colors.black,
-                  fontFamily: 'Gotham',
-                  fontWeight: FontWeight.normal,
-                  fontSize: 16.0),
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            Text(
-              'Membership type',
-              style: TextStyle(
-                  color: Colors.black,
-                  fontFamily: 'Gotham',
-                  fontWeight: FontWeight.normal,
-                  fontSize: 16.0),
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            Text(
-              '45',
-              style: TextStyle(
-                  color: Colors.black,
-                  fontFamily: 'Gotham',
-                  fontWeight: FontWeight.normal,
-                  fontSize: 20.0),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Image.asset(
-                'assets/qr_code.png',
-                fit: BoxFit.fill,
-                width: MediaQuery.of(context).size.width * 0.85,
-                height: MediaQuery.of(context).size.height * 0.35,
+              Text(
+                'Yassen Mansour',
+                style: TextStyle(
+                    color: Colors.black,
+                    fontFamily: 'Gotham',
+                    fontWeight: FontWeight.normal,
+                    fontSize: 20.0),
               ),
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            Text(
-              'Scan at club Entrance',
-              style: TextStyle(
-                  color: Colors.black,
-                  fontFamily: 'Gotham',
-                  fontWeight: FontWeight.normal,
-                  fontSize: 16.0),
-            ),
-          ],
+              Text(
+                'ID : 2233 4422 33444',
+                style: TextStyle(
+                    color: Colors.black,
+                    fontFamily: 'Gotham',
+                    fontWeight: FontWeight.normal,
+                    fontSize: 16.0),
+              ),
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.02,
+              ),
+              Text(
+                'Membership type',
+                style: TextStyle(
+                    color: Colors.black,
+                    fontFamily: 'Gotham',
+                    fontWeight: FontWeight.normal,
+                    fontSize: 16.0),
+              ),
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.02,
+              ),
+              Text(
+                '45',
+                style: TextStyle(
+                    color: Colors.black,
+                    fontFamily: 'Gotham',
+                    fontWeight: FontWeight.normal,
+                    fontSize: 20.0),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Image.asset(
+                  'assets/qr_code.png',
+                  fit: BoxFit.fill,
+                  width: MediaQuery.of(context).size.width * 0.85,
+                  height: MediaQuery.of(context).size.height * 0.35,
+                ),
+              ),
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.02,
+              ),
+              Text(
+                'Scan at club Entrance',
+                style: TextStyle(
+                    color: Colors.black,
+                    fontFamily: 'Gotham',
+                    fontWeight: FontWeight.normal,
+                    fontSize: 16.0),
+              ),
+            ],
+          ),
         ),
       ),
     );

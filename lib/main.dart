@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:palm_hills_club/screens/SplashScreen.dart';
+import 'package:palm_hills_club/screens/signin.dart';
 
 import 'bindings/binding.dart';
 
@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
       ),
       initialBinding: Binding(),
       home: Scaffold(
-        body: SplashScreen(),
+        body: SignIn(),
       ),
     );
   }

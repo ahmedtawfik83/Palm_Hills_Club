@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 
 class AuthController extends GetxController {
-  String email, password, name;
+  String? email, password, name;
 
   // Rx<User> _user = Rx<User>();
   //

@@ -8,6 +8,7 @@ class aboutUs extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         automaticallyImplyLeading: true,
         leading: IconButton(
@@ -30,8 +31,7 @@ class aboutUs extends StatelessWidget {
         centerTitle: true,
       ),
       backgroundColor: AppBackgroundColor,
-      body: Padding(
-        padding: const EdgeInsets.all(25.0),
+      body: SingleChildScrollView(
         child: Container(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -42,7 +42,7 @@ class aboutUs extends StatelessWidget {
                     color: Colors.black,
                     fontFamily: 'Gotham',
                     fontWeight: FontWeight.normal,
-                    fontSize: 20.0),
+                    fontSize: 18.0),
               ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -59,7 +59,7 @@ class aboutUs extends StatelessWidget {
                 ),
               ),
               SizedBox(
-                height: 20,
+                height: MediaQuery.of(context).size.height * 0.02,
               ),
               Text(
                 'Title',
@@ -67,7 +67,7 @@ class aboutUs extends StatelessWidget {
                     color: Colors.black,
                     fontFamily: 'Gotham',
                     fontWeight: FontWeight.normal,
-                    fontSize: 20.0),
+                    fontSize: 18.0),
               ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -84,7 +84,7 @@ class aboutUs extends StatelessWidget {
                 ),
               ),
               SizedBox(
-                height: 20,
+                height: MediaQuery.of(context).size.height * 0.02,
               ),
               Text(
                 'Website',
@@ -95,7 +95,7 @@ class aboutUs extends StatelessWidget {
                     fontSize: 18.0),
               ),
               SizedBox(
-                height: 5,
+                height: MediaQuery.of(context).size.height * 0.02,
               ),
               Center(
                 child: Container(
@@ -109,7 +109,7 @@ class aboutUs extends StatelessWidget {
                           MaterialStateProperty.all<Color>(Colors.black),
                       shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                         RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
+                          borderRadius: BorderRadius.circular(30.0),
                           side: BorderSide(color: Colors.grey),
                         ),
                       ),
@@ -117,7 +117,7 @@ class aboutUs extends StatelessWidget {
                     onPressed: () {},
                     child: Text(
                       'Visit Website',
-                      style: TextStyle(fontSize: 22.0),
+                      style: TextStyle(fontSize: 18.0),
                     ),
                   ),
                 ),

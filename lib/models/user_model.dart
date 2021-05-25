@@ -1,8 +1,8 @@
 import 'package:get/get.dart';
 
 class User {
-  RxInt id;
-  String email, name, pic;
+  RxInt? id;
+  String? email, name, pic;
 
   User({this.id, this.email, this.name, this.pic});
 
