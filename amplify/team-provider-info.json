@@ -1,0 +1,30 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-palmhillsclub-dev-144156-authRole",
+      "UnauthRoleArn": "arn:aws:iam::919269201882:role/amplify-palmhillsclub-dev-144156-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::919269201882:role/amplify-palmhillsclub-dev-144156-authRole",
+      "Region": "eu-central-1",
+      "DeploymentBucketName": "amplify-palmhillsclub-dev-144156-deployment",
+      "UnauthRoleName": "amplify-palmhillsclub-dev-144156-unauthRole",
+      "StackName": "amplify-palmhillsclub-dev-144156",
+      "StackId": "arn:aws:cloudformation:eu-central-1:919269201882:stack/amplify-palmhillsclub-dev-144156/ecdd8910-c39f-11eb-90ae-0631996c6c5e",
+      "AmplifyAppId": "dudbaw4z19tri"
+    },
+    "categories": {
+      "auth": {
+        "palmhillsclub614e0798": {}
+      },
+      "function": {
+        "AdminQueriesc1b7f9d7": {
+          "deploymentBucketName": "amplify-palmhillsclub-dev-144156-deployment",
+          "s3Key": "amplify-builds/AdminQueriesc1b7f9d7-49423077716d6d49615a-build.zip"
+        },
+        "generateQRCode": {
+          "deploymentBucketName": "amplify-palmhillsclub-dev-144156-deployment",
+          "s3Key": "amplify-builds/generateQRCode-453932676f4d2f4b5948-build.zip"
+        }
+      }
+    }
+  }
+}

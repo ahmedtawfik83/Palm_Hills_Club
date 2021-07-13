@@ -1,0 +1,51 @@
+type User @model @auth(rules: [{allow: owner}]) {
+  id: ID!
+  club_id: Int
+  username: AWSPhone!
+  phoneNumber: AWSPhone
+  email: AWSEmail
+  image: String
+  membershipNumber: String
+  userType: Int
+  isVerified: Boolean
+  createdAt: AWSDateTime
+  updatedAt: AWSDateTime
+  # QRCode: [QRCode] @connection(keyName: "byUser", fields: ["id"])
+  # GateAccessLog: [GateAccessLog] @connection(keyName: "byUser", fields: ["id"])
+}
+
+type Gate @model @auth(rules: [{allow: owner}]) {
+  id: ID!
+  name: String!
+  isIn: Boolean!
+  createdAt: AWSDateTime
+  updatedAt: AWSDateTime
+}
+
+# type QRCode @model @auth(rules: [{allow: owner}]) @key(name: "byUser", fields: ["userID"]) {
+type QRCode @model @auth(rules: [{allow: owner}]) {
+  id: ID!
+  club_id: Int!
+  username: AWSPhone!
+  code: String!
+  isUsed: Boolean!
+  validUntil: AWSDateTime!
+  createdAt: AWSDateTime
+  updatedAt: AWSDateTime
+  # user: User @connection
+  userID: ID
+}
+
+# type GateAccessLog @model @key(name: "byUser", fields: ["userID"]) @auth(rules: [{allow: owner}]) {
+type GateAccessLog @model @auth(rules: [{allow: owner}]) {
+  id: ID!
+  club_id: Int!
+  username: AWSPhone!
+  gate: Int!
+  QRCode: Int!
+  createdAt: AWSDateTime
+  updatedAt: AWSDateTime
+  # user: User @connection
+  userID: ID
+}
+  
