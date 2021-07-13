@@ -1,0 +1,21 @@
+{
+    "appName": "phcAnalytics",
+    "roleName": "pinpointLambdaRole472b0506",
+    "cloudformationPolicyName": "cloudformationPolicy472b0506",
+    "cloudWatchPolicyName": "cloudWatchPolicy472b0506",
+    "pinpointPolicyName": "pinpointPolicy472b0506",
+    "authPolicyName": "pinpoint_amplify_472b0506",
+    "unauthPolicyName": "pinpoint_amplify_472b0506",
+    "authRoleName": {
+        "Ref": "AuthRoleName"
+    },
+    "unauthRoleName": {
+        "Ref": "UnauthRoleName"
+    },
+    "authRoleArn": {
+        "Fn::GetAtt": [
+            "AuthRole",
+            "Arn"
+        ]
+    }
+}
