@@ -42,6 +42,8 @@ class _confirmAccountState extends State<confirmAccount> {
   void initState() {
     super.initState();
     print('result phone Passed: ' + widget.phoneNumber.toString());
+    print(
+        'result phone Passed: ' + widget.membershipNumberController.toString());
   }
 
   Future<bool> _confirmSignUp() async {
@@ -60,7 +62,8 @@ class _confirmAccountState extends State<confirmAccount> {
           .loginWithEmailPassword(widget.phoneNumber, 'password');
 
       print('SignIn result : ' + signInRes.toString());
-      await AuthService().saveUser(widget.phoneNumber);
+      await AuthService()
+          .saveUser(widget.phoneNumber, widget.membershipNumberController.text);
       Get.to(() => accountSetup(
             phoneNumber: widget.phoneNumber,
           ));

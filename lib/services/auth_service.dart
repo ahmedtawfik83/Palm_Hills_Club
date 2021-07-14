@@ -35,8 +35,7 @@ class AuthService extends GetxController {
   void updatePassword(String newPassword) async {
     try {
       await Amplify.Auth.updatePassword(
-          newPassword: newPasswordController.text.trim(),
-          oldPassword: 'password');
+          newPassword: newPassword, oldPassword: 'password');
       showResult('Password Updated');
       changeDisplay('SIGNED_IN');
     } on AmplifyException catch (e) {
@@ -139,7 +138,7 @@ class AuthService extends GetxController {
     }
   }
 
-  Future saveUser(String username) async {
+  Future saveUser(String username, String membershipNum) async {
     try {
       print(username);
       // await Amplify.Auth.signOut();
@@ -180,7 +179,7 @@ class AuthService extends GetxController {
         'club_id': 2,
         'username': username,
         'userType': 10,
-        'membershipNumber': membershipNumberController.text,
+        'membershipNumber': membershipNum,
         'phoneNumber': username,
         'isVerified': true,
       }));
@@ -195,19 +194,19 @@ class AuthService extends GetxController {
     }
   }
 
-  Future<bool> confirmRegisterWithCode(
-      String username, String password, String code) async {
-    try {
-      SignUpResult res = await Amplify.Auth.confirmSignUp(
-          username: username, confirmationCode: code);
-
-      if (res.isSignUpComplete) {
-        final signInRes = await loginWithEmailPassword(username, password);
-        await saveUser(username);
-        return signInRes;
-      }
-    } catch (e) {
-      throw e;
-    }
-  }
+  // Future<bool> confirmRegisterWithCode(
+  //     String username, String password, String code) async {
+  //   try {
+  //     SignUpResult res = await Amplify.Auth.confirmSignUp(
+  //         username: username, confirmationCode: code);
+  //
+  //     if (res.isSignUpComplete) {
+  //       final signInRes = await loginWithEmailPassword(username, password);
+  //       await saveUser(username);
+  //       return signInRes;
+  //     }
+  //   } catch (e) {
+  //     throw e;
+  //   }
+  // }
 }

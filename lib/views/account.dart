@@ -20,7 +20,7 @@ class accountSetup extends StatefulWidget {
 
 class _accountSetupState extends State<accountSetup> {
   final _formKey = GlobalKey<FormState>();
-
+  TextEditingController newPasswordController = TextEditingController();
   var _checkedValue = false;
 
   @override
@@ -97,7 +97,7 @@ class _accountSetupState extends State<accountSetup> {
                               height: MediaQuery.of(context).size.height * 0.07,
                               width: MediaQuery.of(context).size.width * 0.9,
                               child: TextFormField(
-                                controller: AuthService().newPasswordController,
+                                controller: newPasswordController,
                                 obscureText: true,
                                 keyboardType: TextInputType.text,
                                 cursorColor: Colors.black,
@@ -129,7 +129,7 @@ class _accountSetupState extends State<accountSetup> {
                               height: MediaQuery.of(context).size.height * 0.07,
                               width: MediaQuery.of(context).size.width * 0.9,
                               child: TextFormField(
-                                controller: AuthService().newPasswordController,
+                                controller: newPasswordController,
                                 obscureText: true,
                                 decoration: const InputDecoration(
                                     fillColor: Colors.white,
@@ -196,7 +196,7 @@ class _accountSetupState extends State<accountSetup> {
                                 ),
                                 onPressed: () {
                                   AuthService().updatePassword(
-                                      AuthService().newPasswordController.text);
+                                      newPasswordController.text);
                                   Get.offAll(
                                     () => pendingConfirmation(),
                                   );

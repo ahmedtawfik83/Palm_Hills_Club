@@ -233,10 +233,6 @@ class _SignInState extends State<SignIn> {
                                 Key('signin-button');
                                 signInWithPhoneNumberAndPassword(
                                     phoneNumber, passwordController.text);
-
-                                // _signIn();
-
-                                // AuthService().saveUser(usernameController.text);
                               },
                               child: Text(
                                 'Sign In',

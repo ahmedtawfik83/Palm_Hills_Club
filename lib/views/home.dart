@@ -60,7 +60,7 @@ class _HomeState extends State<Home> {
             AuthService().fetchSession,
             AuthService().getCurrentUser,
             AuthService().setError,
-            AuthService().phoneNumber),
+            phoneNumber),
       ),
     );
     // Get.off(SignIn(showResult, changeDisplay, showCreateUser, signOut,
