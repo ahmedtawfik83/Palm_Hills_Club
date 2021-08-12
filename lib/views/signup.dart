@@ -4,11 +4,12 @@ import 'package:amplify_flutter/amplify.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:international_phone_input/international_phone_input.dart';
-import 'package:palm_hills_club/services/auth_service.dart';
-import 'package:palm_hills_club/views/contact_us.dart';
+import 'package:palm_hills_club/controllers/authController.dart';
+import 'package:palm_hills_club/helpers/loadingOverlay.dart';
+import 'package:palm_hills_club/views/contactUs.dart';
 
 import '../constance.dart';
-import 'confirm_account.dart';
+import 'confirmAccount.dart';
 import 'signin.dart';
 
 class signUp extends StatefulWidget {
@@ -17,20 +18,32 @@ class signUp extends StatefulWidget {
   final Function setError;
   final Function backToSignIn;
   String phoneNumber = "";
-  final authServ = Get.put(AuthService);
+  String email;
+  final authServ = Get.put(AuthController);
 
   signUp(this.showResult, this.changeDisplay, this.setError, this.backToSignIn,
-      this.phoneNumber);
+      this.phoneNumber, this.email);
 
   @override
   _signUpState createState() => _signUpState();
 }
 
 class _signUpState extends State<signUp> {
-  TextEditingController firstNameController = TextEditingController();
-  TextEditingController lastNameController = TextEditingController();
-  TextEditingController membershipNumberController = TextEditingController();
+  final TextEditingController firstNameController = TextEditingController();
+  final TextEditingController lastNameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController membershipNumberController =
+      TextEditingController();
   final confirmationCodeController = TextEditingController();
+  @override
+  void dispose() {
+    firstNameController.dispose();
+    lastNameController.dispose();
+    emailController.dispose();
+    membershipNumberController.dispose();
+    confirmationCodeController.dispose();
+    super.dispose();
+  }
 
   String phoneNumber = '';
   String phoneIsoCode = 'EG';
@@ -48,11 +61,12 @@ class _signUpState extends State<signUp> {
     setState(() {
       signUpError = "";
     });
-    if (firstNameController.text.isEmpty ||
-        lastNameController.text.isEmpty ||
-        phoneNumber.isEmpty ||
-        membershipNumberController.text.isEmpty) {
-      Get.bottomSheet(Container(
+    if (firstNameController.text.isNull ||
+        lastNameController.text.isNull ||
+        phoneNumber.isNull ||
+        membershipNumberController.text.isNull) {
+      Get.bottomSheet(
+        Container(
           height: 100,
           color: AppBackgroundColor,
           child: Center(
@@ -63,21 +77,26 @@ class _signUpState extends State<signUp> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-          )));
+          ),
+        ),
+      );
     } else {
       final name = firstNameController.text.trim() +
           " " +
           lastNameController.text.trim();
+      final email = emailController.text.trim();
       Map<String, String> userAttributes = {
         "name": name,
         "phone_number": phoneNumber.trim(),
+        "email": email,
         "custom:club_id": membershipNumberController.text.trim(),
       };
       try {
-        SignUpResult res = await Amplify.Auth.signUp(
-            username: phoneNumber.trim(),
-            password: 'password',
-            options: CognitoSignUpOptions(userAttributes: userAttributes));
+        SignUpResult res = await LoadingOverlay.of(context).during(
+            Amplify.Auth.signUp(
+                username: phoneNumber.trim(),
+                password: 'password',
+                options: CognitoSignUpOptions(userAttributes: userAttributes)));
         widget.showResult('Sign Up Status = ' + res.nextStep.signUpStep);
         widget.changeDisplay(res.nextStep.signUpStep != 'DONE'
             ? 'SHOW_CONFIRM'
@@ -88,39 +107,184 @@ class _signUpState extends State<signUp> {
         if (res.nextStep.signUpStep != 'DONE') {
           firstNameController.clear();
           lastNameController.clear();
-          // membershipNumberController.clear();
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => confirmAccount(
-                      AuthService().showResult,
-                      AuthService().changeDisplay,
-                      AuthService().setError,
-                      AuthService().backToSignIn,
-                      phoneNumber,
-                      membershipNumberController)));
+
+          Get.to(
+            () => confirmAccount(
+                AuthController().showResult,
+                AuthController().changeDisplay,
+                AuthController().setError,
+                AuthController().backToSignIn,
+                phoneNumber,
+                membershipNumberController,
+                widget.email),
+          );
         }
       } on AuthException catch (error) {
-        AuthService().setError(error);
-        print('Signup failed: $error');
+        AuthController().setError(error);
+        print(error.message);
+        if (error.message == 'One or more parameters are incorrect.' ||
+            error.message == 'Username is required to signUp')
+          return Get.defaultDialog(
+            backgroundColor: Colors.transparent,
+            title: '',
+            content: Column(
+              children: [
+                Container(
+                  decoration: const BoxDecoration(
+                    color: AppBackgroundColor,
+                    borderRadius: BorderRadius.only(
+                      topLeft: const Radius.circular(30.0),
+                      topRight: const Radius.circular(30.0),
+                    ),
+                  ),
+                  width: double.infinity,
+                  height: 200,
+                  child: Padding(
+                    padding: const EdgeInsets.all(25.0),
+                    child: Center(
+                      child: Column(
+                        children: [
+                          Text(
+                            'Failed',
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontFamily: 'Gotham',
+                                fontWeight: FontWeight.bold,
+                                fontSize: 25.0),
+                          ),
+                          SizedBox(height: 10.0),
+                          RichText(
+                            text: TextSpan(
+                              text:
+                                  'There seems to be a problem with the information you have submitted. Please check the information provided or contact us.',
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontFamily: 'Gotham',
+                                  fontWeight: FontWeight.normal,
+                                  fontSize: 18.0),
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  decoration: const BoxDecoration(
+                    color: Colors.black,
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: const Radius.circular(30.0),
+                      bottomRight: const Radius.circular(30.0),
+                    ),
+                  ),
+                  // padding: EdgeInsets.zero,
+                  // margin: EdgeInsets.zero,
+                  width: double.infinity,
+                  height: 60,
+                  // color: cardCustom,
+                  child: TextButton(
+                    // style: ButtonStyle(),
+                    child: Text(
+                      "Okay",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontFamily: 'Gotham',
+                          fontWeight: FontWeight.normal,
+                          fontSize: 26.0),
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ).then((value) => LoadingOverlay.of(context).hide());
+        else if (error.message == 'Username already exists in the system.' ||
+            error.message ==
+                'An account with the given phone_number already exists.')
+          return Get.defaultDialog(
+            backgroundColor: Colors.transparent,
+            title: '',
+            content: Column(
+              children: [
+                Container(
+                  decoration: const BoxDecoration(
+                    color: AppBackgroundColor,
+                    borderRadius: BorderRadius.only(
+                      topLeft: const Radius.circular(30.0),
+                      topRight: const Radius.circular(30.0),
+                    ),
+                  ),
+                  width: double.infinity,
+                  height: 150,
+                  child: Padding(
+                    padding: const EdgeInsets.all(25.0),
+                    child: Center(
+                      child: Column(
+                        children: [
+                          Text(
+                            'Failed',
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontFamily: 'Gotham',
+                                fontWeight: FontWeight.bold,
+                                fontSize: 25.0),
+                          ),
+                          SizedBox(height: 10.0),
+                          Center(
+                            child: RichText(
+                              text: TextSpan(
+                                text: 'Username already exists in the system.',
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontFamily: 'Gotham',
+                                    fontWeight: FontWeight.normal,
+                                    fontSize: 18.0),
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  decoration: const BoxDecoration(
+                    color: Colors.black,
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: const Radius.circular(30.0),
+                      bottomRight: const Radius.circular(30.0),
+                    ),
+                  ),
+                  // padding: EdgeInsets.zero,
+                  // margin: EdgeInsets.zero,
+                  width: double.infinity,
+                  height: 60,
+                  // color: cardCustom,
+                  child: TextButton(
+                    // style: ButtonStyle(),
+                    child: Text(
+                      "Okay",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontFamily: 'Gotham',
+                          fontWeight: FontWeight.normal,
+                          fontSize: 26.0),
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ).then((value) => LoadingOverlay.of(context).hide());
       }
     }
   }
-
-  // void _confirmSignUp() async {
-  //   setState(() {
-  //     _signUpError = "";
-  //   });
-  //
-  //   try {
-  //     SignUpResult res = await Amplify.Auth.confirmSignUp(
-  //         username: phoneNumber.trim(),
-  //         confirmationCode: confirmationCodeController.text.trim());
-  //     Navigator.pop(context, true);
-  //   } on AuthException catch (error) {
-  //     _setError(error);
-  //   }
-  // }
 
   onPhoneNumberChange(
       String number, String internationalizedPhoneNumber, String isoCode) {
@@ -187,13 +351,13 @@ class _signUpState extends State<signUp> {
                             onPressed: () {
                               // widget.backToSignIn;
                               Get.offAll(() => SignIn(
-                                  AuthService().showResult,
-                                  AuthService().changeDisplay,
-                                  AuthService().showCreateUser,
-                                  AuthService().signOut,
-                                  AuthService().fetchSession,
-                                  AuthService().getCurrentUser,
-                                  AuthService().setError,
+                                  AuthController().showResult,
+                                  AuthController().changeDisplay,
+                                  AuthController().showCreateUser,
+                                  AuthController().signOut,
+                                  AuthController().fetchSession,
+                                  AuthController().getCurrentUser,
+                                  AuthController().setError,
                                   phoneNumber));
                             }),
                         Padding(
@@ -333,6 +497,33 @@ class _signUpState extends State<signUp> {
                               height: MediaQuery.of(context).size.height * 0.07,
                               width: MediaQuery.of(context).size.width * 0.90,
                               child: TextFormField(
+                                key: Key('signup-email-input'),
+                                controller: emailController,
+                                keyboardType: TextInputType.emailAddress,
+                                decoration: InputDecoration(
+                                    focusedBorder: null,
+                                    fillColor: Colors.white,
+                                    filled: true,
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.all(
+                                        Radius.circular(40.0),
+                                      ),
+                                    ),
+                                    labelText: 'Email',
+                                    alignLabelWithHint: true),
+                                validator: (value) =>
+                                    !AuthController().validateEmail(value)
+                                        ? "Email is Invalid"
+                                        : null,
+                              ),
+                            ),
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.04,
+                            ),
+                            Container(
+                              height: MediaQuery.of(context).size.height * 0.07,
+                              width: MediaQuery.of(context).size.width * 0.90,
+                              child: TextFormField(
                                 key: Key('signup-membershipNumber-input'),
 
                                 controller: membershipNumberController,
@@ -407,36 +598,33 @@ class _signUpState extends State<signUp> {
                             ),
                             SizedBox(
                                 height:
-                                    MediaQuery.of(context).size.height * 0.05),
+                                    MediaQuery.of(context).size.height * 0.01),
                             Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 50.0,
-                                ),
-                                child: Center(
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                        'Having a trouble?',
+                              child: Center(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'Having a trouble?',
+                                      style: TextStyle(
+                                        color: Colors.grey,
+                                        fontSize: 16.0,
+                                      ),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        Get.to(() => ContactUs());
+                                      },
+                                      child: Text(
+                                        'Contact Us',
                                         style: TextStyle(
-                                          color: Colors.grey,
-                                          fontSize: 16.0,
-                                        ),
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18.0),
                                       ),
-                                      TextButton(
-                                        onPressed: () {
-                                          Get.to(() => ContactUs());
-                                        },
-                                        child: Text(
-                                          'Contact Us',
-                                          style: TextStyle(
-                                              color: Colors.black,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18.0),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),

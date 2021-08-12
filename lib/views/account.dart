@@ -1,14 +1,13 @@
 import 'dart:ui';
 
+import 'package:amplify_flutter/amplify.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:palm_hills_club/services/auth_service.dart';
-import 'package:palm_hills_club/views/pending_confirmation.dart';
-import 'package:palm_hills_club/views/signin.dart';
-import 'package:palm_hills_club/views/signup.dart';
+import 'package:palm_hills_club/controllers/authController.dart';
+import 'package:palm_hills_club/helpers/loadingOverlay.dart';
+import 'package:palm_hills_club/views/pendingConfirmation.dart';
 
 import '../constance.dart';
-import 'home.dart';
 
 class accountSetup extends StatefulWidget {
   final phoneNumber;
@@ -21,7 +20,122 @@ class accountSetup extends StatefulWidget {
 class _accountSetupState extends State<accountSetup> {
   final _formKey = GlobalKey<FormState>();
   TextEditingController newPasswordController = TextEditingController();
-  var _checkedValue = false;
+  TextEditingController confirmNewPasswordController = TextEditingController();
+  bool _checkedValue = false;
+  bool _isObscure = true;
+  bool _confirmIsObscure = true;
+
+  Future<void> updatePassword(String newPassword) async {
+    if (newPasswordController.text.trim().length > 7 &&
+        newPasswordController.text.trim() ==
+            confirmNewPasswordController.text.trim() &&
+        _checkedValue == true) {
+      try {
+        var res = await Amplify.Auth.updatePassword(
+                newPassword: newPassword, oldPassword: 'password')
+            .then((value) => Get.offAll(
+                  () => pendingConfirmation(),
+                ));
+        print('Result :' + res.toString());
+        AuthController().showResult('Password Updated');
+        AuthController().changeDisplay('SIGNED_IN');
+      } on AmplifyException catch (e) {
+        print('Error :' + e.message.toString());
+        AuthController().setError(e);
+      }
+      // Get.bottomSheet(
+      //   Container(
+      //     height: 100,
+      //     color: AppBackgroundColor,
+      //     child: Center(
+      //       child: Text(
+      //         "Right Password",
+      //         style: TextStyle(
+      //           fontSize: 18,
+      //           fontWeight: FontWeight.bold,
+      //         ),
+      //       ),
+      //     ),
+      //   ),
+      // ).then((value) => Get.offAll(
+      //       () => pendingConfirmation(),
+      //     ));
+    } else if (newPasswordController.text.trim().isEmpty ||
+        confirmNewPasswordController.text.trim().isEmpty) {
+      Get.bottomSheet(
+        Container(
+          height: 100,
+          color: AppBackgroundColor,
+          child: Center(
+            child: Text(
+              "Please Enter Your Password",
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
+      );
+    } else if (newPasswordController.text.trim().length < 8 ||
+        confirmNewPasswordController.text.trim().length < 8) {
+      Get.bottomSheet(
+        Container(
+          height: 100,
+          color: AppBackgroundColor,
+          child: Center(
+            child: Text(
+              "Password minimum length is 8",
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
+      );
+    } else if (newPasswordController.text.trim() !=
+        confirmNewPasswordController.text.trim()) {
+      Get.bottomSheet(
+        Container(
+          height: 100,
+          color: AppBackgroundColor,
+          child: Center(
+            child: Text(
+              "Password must be same as above",
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
+      );
+    } else if (_checkedValue == false) {
+      Get.bottomSheet(
+        Container(
+          height: 100,
+          color: AppBackgroundColor,
+          child: Center(
+            child: Text(
+              "Please agree on Terms & conditions",
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+  }
+
+  // @override
+  // void dispose() {
+  //   newPasswordController.dispose();
+  //   confirmNewPasswordController.dispose();
+  //   super.dispose();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -98,12 +212,22 @@ class _accountSetupState extends State<accountSetup> {
                               width: MediaQuery.of(context).size.width * 0.9,
                               child: TextFormField(
                                 controller: newPasswordController,
-                                obscureText: true,
+                                obscureText: _isObscure,
                                 keyboardType: TextInputType.text,
                                 cursorColor: Colors.black,
-                                decoration: const InputDecoration(
+                                decoration: InputDecoration(
                                     fillColor: Colors.white,
                                     filled: true,
+                                    suffixIcon: IconButton(
+                                      icon: Icon(_isObscure
+                                          ? Icons.visibility
+                                          : Icons.visibility_off),
+                                      onPressed: () {
+                                        setState(() {
+                                          _isObscure = !_isObscure;
+                                        });
+                                      },
+                                    ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.all(
                                         Radius.circular(
@@ -113,13 +237,115 @@ class _accountSetupState extends State<accountSetup> {
                                     ),
                                     labelText: 'Password',
                                     alignLabelWithHint: true),
-                                // The validator receives the text that the user has entered.
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Please enter your Password';
-                                  }
-                                  return null;
-                                },
+                                validator: (value) => value.isEmpty
+                                    ? "Password is invalid"
+                                    : value.length < 8
+                                        ? Get.defaultDialog(
+                                            backgroundColor: Colors.transparent,
+                                            title: '',
+                                            content: Column(
+                                              children: [
+                                                Container(
+                                                  decoration:
+                                                      const BoxDecoration(
+                                                    color: AppBackgroundColor,
+                                                    borderRadius:
+                                                        BorderRadius.only(
+                                                      topLeft:
+                                                          const Radius.circular(
+                                                              30.0),
+                                                      topRight:
+                                                          const Radius.circular(
+                                                              30.0),
+                                                    ),
+                                                  ),
+                                                  width: double.infinity,
+                                                  height: 200,
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            25.0),
+                                                    child: Center(
+                                                      child: Column(
+                                                        children: [
+                                                          Text(
+                                                            'Failed',
+                                                            style: TextStyle(
+                                                                color: Colors
+                                                                    .black,
+                                                                fontFamily:
+                                                                    'Gotham',
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                fontSize: 25.0),
+                                                          ),
+                                                          SizedBox(
+                                                              height: 10.0),
+                                                          RichText(
+                                                            text: TextSpan(
+                                                              text:
+                                                                  'Password must be atleast 8 characters long',
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .black,
+                                                                  fontFamily:
+                                                                      'Gotham',
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .normal,
+                                                                  fontSize:
+                                                                      18.0),
+                                                            ),
+                                                            textAlign: TextAlign
+                                                                .center,
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                Container(
+                                                  decoration:
+                                                      const BoxDecoration(
+                                                    color: Colors.black,
+                                                    borderRadius:
+                                                        BorderRadius.only(
+                                                      bottomLeft:
+                                                          const Radius.circular(
+                                                              30.0),
+                                                      bottomRight:
+                                                          const Radius.circular(
+                                                              30.0),
+                                                    ),
+                                                  ),
+                                                  // padding: EdgeInsets.zero,
+                                                  // margin: EdgeInsets.zero,
+                                                  width: double.infinity,
+                                                  height: 60,
+                                                  // color: cardCustom,
+                                                  child: TextButton(
+                                                    // style: ButtonStyle(),
+                                                    child: Text(
+                                                      "Okay",
+                                                      style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontFamily: 'Gotham',
+                                                          fontWeight:
+                                                              FontWeight.normal,
+                                                          fontSize: 26.0),
+                                                    ),
+                                                    onPressed: () {
+                                                      Navigator.of(context)
+                                                          .pop();
+                                                    },
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ).then((value) =>
+                                            LoadingOverlay.of(context).hide())
+                                        : null,
                               ),
                             ),
                             SizedBox(
@@ -129,11 +355,22 @@ class _accountSetupState extends State<accountSetup> {
                               height: MediaQuery.of(context).size.height * 0.07,
                               width: MediaQuery.of(context).size.width * 0.9,
                               child: TextFormField(
-                                controller: newPasswordController,
-                                obscureText: true,
-                                decoration: const InputDecoration(
+                                controller: confirmNewPasswordController,
+                                obscureText: _confirmIsObscure,
+                                decoration: InputDecoration(
                                     fillColor: Colors.white,
                                     filled: true,
+                                    suffixIcon: IconButton(
+                                      icon: Icon(_confirmIsObscure
+                                          ? Icons.visibility
+                                          : Icons.visibility_off),
+                                      onPressed: () {
+                                        setState(() {
+                                          _confirmIsObscure =
+                                              !_confirmIsObscure;
+                                        });
+                                      },
+                                    ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.all(
                                         Radius.circular(40.0),
@@ -141,12 +378,17 @@ class _accountSetupState extends State<accountSetup> {
                                     ),
                                     labelText: 'Confirm Password',
                                     alignLabelWithHint: true),
-                                // The validator receives the text that the user has entered.
                                 validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Please enter your Password';
+                                  if (value.isEmpty) {
+                                    return "Please Re-Enter New Password";
+                                  } else if (value.length < 9) {
+                                    return "Password must be atleast 8 characters long";
+                                  } else if (value !=
+                                      newPasswordController.text.trim()) {
+                                    return "Password must be same as above";
+                                  } else {
+                                    return null;
                                   }
-                                  return null;
                                 },
                               ),
                             ),
@@ -154,6 +396,7 @@ class _accountSetupState extends State<accountSetup> {
                               height: MediaQuery.of(context).size.height * 0.01,
                             ),
                             CheckboxListTile(
+                              dense: true,
                               title: Text(
                                 'I have read and agreed to the Terms & Conditions provided.',
                                 style: TextStyle(
@@ -161,7 +404,9 @@ class _accountSetupState extends State<accountSetup> {
                               ),
                               value: _checkedValue,
                               onChanged: (newValue) {
-                                _checkedValue = newValue;
+                                setState(() {
+                                  _checkedValue = newValue;
+                                });
                               },
                               activeColor: Colors.grey,
                               checkColor: Colors.black,
@@ -195,11 +440,10 @@ class _accountSetupState extends State<accountSetup> {
                                   ),
                                 ),
                                 onPressed: () {
-                                  AuthService().updatePassword(
-                                      newPasswordController.text);
-                                  Get.offAll(
-                                    () => pendingConfirmation(),
-                                  );
+                                  updatePassword(newPasswordController.text);
+                                  // Get.offAll(
+                                  //   () => pendingConfirmation(),
+                                  // );
                                 },
                                 child: Text(
                                   'Get Started',

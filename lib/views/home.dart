@@ -5,8 +5,8 @@ import 'package:amplify_flutter/amplify.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:palm_hills_club/services/auth_service.dart';
-import 'package:palm_hills_club/views/about_us.dart';
+import 'package:palm_hills_club/controllers/authController.dart';
+import 'package:palm_hills_club/views/aboutUs.dart';
 import 'package:palm_hills_club/views/badge.dart';
 import 'package:palm_hills_club/views/notifications.dart';
 import 'package:palm_hills_club/views/profile.dart';
@@ -26,7 +26,7 @@ class Home extends StatefulWidget {
   final Function changeDisplay;
   final Function showResult;
   String phoneNumber = '';
-  final authServ = Get.put(AuthService);
+  final authServ = Get.put(AuthController);
   Home({
     Key key,
     this.backToSignIn,
@@ -47,19 +47,19 @@ class _HomeState extends State<Home> {
   String authState = 'User not signed in';
 
   void backToSignIn() async {
-    AuthService().changeDisplay('SHOW_SIGN_IN');
-    AuthService().signOut();
+    AuthController().changeDisplay('SHOW_SIGN_IN');
+    AuthController().signOut();
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
         builder: (context) => SignIn(
-            AuthService().showResult,
-            AuthService().changeDisplay,
-            AuthService().showCreateUser,
-            AuthService().signOut,
-            AuthService().fetchSession,
-            AuthService().getCurrentUser,
-            AuthService().setError,
+            AuthController().showResult,
+            AuthController().changeDisplay,
+            AuthController().showCreateUser,
+            AuthController().signOut,
+            AuthController().fetchSession,
+            AuthController().getCurrentUser,
+            AuthController().setError,
             phoneNumber),
       ),
     );
@@ -71,16 +71,17 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
+        child: Column(
+          // shrinkWrap: true,
+          // padding: EdgeInsets.zero,
           children: <Widget>[
             DrawerHeader(
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.all(15.0),
+                    padding: const EdgeInsets.only(right: 10.0),
                     child: Image(
                       image: AssetImage(
                         'assets/yassin.png',
@@ -91,7 +92,7 @@ class _HomeState extends State<Home> {
                   ),
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'Yassen Mansour',
@@ -99,7 +100,10 @@ class _HomeState extends State<Home> {
                             color: Colors.black,
                             fontFamily: 'Gotham',
                             fontWeight: FontWeight.normal,
-                            fontSize: 15),
+                            fontSize: 18),
+                      ),
+                      SizedBox(
+                        height: 5.0,
                       ),
                       Text(
                         'ID : 2233 4422 33444',
@@ -107,7 +111,7 @@ class _HomeState extends State<Home> {
                             color: Colors.black,
                             fontFamily: 'Gotham',
                             fontWeight: FontWeight.normal,
-                            fontSize: 13.0),
+                            fontSize: 16.0),
                       ),
                     ],
                   ),
@@ -154,7 +158,7 @@ class _HomeState extends State<Home> {
               },
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 100.0),
+              padding: const EdgeInsets.all(30.0),
               child: Image(
                 image: AssetImage(
                   'assets/phc-logo.png',
@@ -166,44 +170,29 @@ class _HomeState extends State<Home> {
             SizedBox(
               height: MediaQuery.of(context).size.height * 0.03,
             ),
-            Container(
-              height: 80,
-              color: Colors.black,
-              child: Center(
-                child: TextButton(
-                  child: Text(
-                    'Logout',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontFamily: 'Gotham',
-                        fontWeight: FontWeight.normal,
-                        fontSize: 20.0),
-                  ),
-                  key: Key('goto-signin-button'),
-                  onPressed: () {
-                    // setState(() {
-                    //   widget.phoneNumber = '';
-                    // });
+            Expanded(
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: GestureDetector(
+                  onTap: () {
                     backToSignIn();
-                    // Get.offAll(
-                    //   () => SignIn(
-                    //       AuthService().showResult,
-                    //       AuthService().changeDisplay,
-                    //       AuthService().showCreateUser,
-                    //       AuthService().signOut,
-                    //       AuthService().fetchSession,
-                    //       AuthService().getCurrentUser,
-                    //       AuthService().setError,
-                    //       phoneNumber),
-                    // );
                   },
-                  // onPressed: () {
-
-                  // Get.offAll(
-                  //   () => SignIn(showResult, changeDisplay, showCreateUser,
-                  //       _signOut, fetchSession, _getCurrentUser, setError),
-                  // );
-                  // },
+                  child: Container(
+                    padding: EdgeInsets.zero,
+                    margin: EdgeInsets.zero,
+                    height: MediaQuery.of(context).size.height * 0.1,
+                    color: Colors.black,
+                    child: Center(
+                      child: Text(
+                        'Logout',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontFamily: 'Gotham',
+                            fontWeight: FontWeight.normal,
+                            fontSize: 20.0),
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),

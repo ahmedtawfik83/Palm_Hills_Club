@@ -2,14 +2,31 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:palm_hills_club/services/auth_service.dart';
+import 'package:international_phone_input/international_phone_input.dart';
+import 'package:palm_hills_club/controllers/authController.dart';
 import 'package:palm_hills_club/views/signin.dart';
 import 'package:palm_hills_club/views/signup.dart';
 
 import '../constance.dart';
 
-class ContactUs extends StatelessWidget {
+class ContactUs extends StatefulWidget {
+  @override
+  _ContactUsState createState() => _ContactUsState();
+}
+
+class _ContactUsState extends State<ContactUs> {
   final _formKey = GlobalKey<FormState>();
+  String phoneNumber = '';
+  String phoneIsoCode = 'EG';
+
+  onPhoneNumberChange(
+      String number, String internationalizedPhoneNumber, String isoCode) {
+    setState(() {
+      phoneNumber = internationalizedPhoneNumber;
+      phoneIsoCode = isoCode;
+    });
+    print('result phone onPhoneNumberChange: ' + phoneNumber.toString());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,14 +71,14 @@ class ContactUs extends StatelessWidget {
                                   ),
                                   onPressed: () {
                                     Get.to(() => SignIn(
-                                        AuthService().showResult,
-                                        AuthService().changeDisplay,
-                                        AuthService().showCreateUser,
-                                        AuthService().signOut,
-                                        AuthService().fetchSession,
-                                        AuthService().getCurrentUser,
-                                        AuthService().setError,
-                                        AuthService().phoneNumber));
+                                        AuthController().showResult,
+                                        AuthController().changeDisplay,
+                                        AuthController().showCreateUser,
+                                        AuthController().signOut,
+                                        AuthController().fetchSession,
+                                        AuthController().getCurrentUser,
+                                        AuthController().setError,
+                                        AuthController().phoneNumber));
                                   }),
                               Padding(
                                 padding: const EdgeInsets.only(right: 120.0),
@@ -142,28 +159,28 @@ class ContactUs extends StatelessWidget {
                             height: MediaQuery.of(context).size.height * 0.02,
                           ),
                           Container(
+                            padding: const EdgeInsets.all(10.0),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              border: Border.all(
+                                // color: Colors.black,
+                                width: 1,
+                              ),
+                              borderRadius: BorderRadius.circular(40.0),
+                            ),
                             height: MediaQuery.of(context).size.height * 0.07,
                             width: MediaQuery.of(context).size.width * 0.9,
-                            child: TextFormField(
-                              decoration: const InputDecoration(
-                                  focusColor: Colors.white,
+                            child: InternationalPhoneInput(
+                                decoration: InputDecoration.collapsed(
                                   fillColor: Colors.white,
                                   filled: true,
-                                  border: OutlineInputBorder(
-                                    borderRadius: const BorderRadius.all(
-                                      Radius.circular(40.0),
-                                    ),
-                                  ),
-                                  labelText: 'Phone Number',
-                                  alignLabelWithHint: true),
-                              // The validator receives the text that the user has entered.
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter your password';
-                                }
-                                return null;
-                              },
-                            ),
+                                  hintText: 'Phone Number',
+                                ),
+                                onPhoneNumberChange: onPhoneNumberChange,
+                                initialPhoneNumber: phoneNumber,
+                                initialSelection: phoneIsoCode,
+                                enabledCountries: ['+20'],
+                                showCountryCodes: true),
                           ),
                           SizedBox(
                             height: MediaQuery.of(context).size.height * 0.02,
@@ -221,28 +238,48 @@ class ContactUs extends StatelessWidget {
                               ),
                               onPressed: () {
                                 Get.defaultDialog(
-                                  backgroundColor: AppBackgroundColor,
+                                  backgroundColor: Colors.transparent,
                                   // actions: [okButton],
                                   title: '',
                                   content: Column(
                                     children: [
-                                      RichText(
-                                        text: TextSpan(
-                                          text: 'Thank you for contacting us.',
-                                          style: TextStyle(
-                                              color: Colors.black,
-                                              fontFamily: 'Gotham',
-                                              fontWeight: FontWeight.normal,
-                                              fontSize: 18.0),
-                                        ),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                      SizedBox(
-                                        height: 20,
-                                      ),
                                       Container(
                                         decoration: const BoxDecoration(
-                                          color: cardCustom,
+                                          color: AppBackgroundColor,
+                                          borderRadius: BorderRadius.only(
+                                            topLeft:
+                                                const Radius.circular(30.0),
+                                            topRight:
+                                                const Radius.circular(30.0),
+                                          ),
+                                        ),
+                                        width: double.infinity,
+                                        height: 120,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(25.0),
+                                          child: Center(
+                                            child: RichText(
+                                              text: TextSpan(
+                                                text:
+                                                    'Thank you for contacting us.',
+                                                style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontFamily: 'Gotham',
+                                                    fontWeight:
+                                                        FontWeight.normal,
+                                                    fontSize: 18.0),
+                                              ),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      // SizedBox(
+                                      //   height: 20,
+                                      // ),
+                                      Container(
+                                        decoration: const BoxDecoration(
+                                          color: Colors.black,
                                           borderRadius: BorderRadius.only(
                                             bottomLeft:
                                                 const Radius.circular(30.0),
@@ -253,7 +290,7 @@ class ContactUs extends StatelessWidget {
                                         padding: EdgeInsets.zero,
                                         // margin: EdgeInsets.zero,
                                         width: double.infinity,
-                                        height: 80,
+                                        height: 60,
                                         // color: cardCustom,
                                         child: TextButton(
                                           // style: ButtonStyle(),
@@ -267,11 +304,14 @@ class ContactUs extends StatelessWidget {
                                           ),
                                           onPressed: () {
                                             Get.offAll(() => signUp(
-                                                AuthService().showResult,
-                                                AuthService().changeDisplay,
-                                                AuthService().setError,
-                                                AuthService().backToSignIn,
-                                                AuthService().phoneNumber));
+                                                  AuthController().showResult,
+                                                  AuthController()
+                                                      .changeDisplay,
+                                                  AuthController().setError,
+                                                  AuthController().backToSignIn,
+                                                  AuthController().phoneNumber,
+                                                  AuthController().email,
+                                                ));
                                           },
                                         ),
                                       ),

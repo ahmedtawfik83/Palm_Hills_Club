@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:amplify_api/amplify_api.dart';
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
@@ -8,40 +7,30 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:palm_hills_club/models/Users.dart';
 
-class AuthService extends GetxController {
-  // DataStoreService _dataStoreService = DataStoreService();
+class AuthController extends GetxController {
   final GlobalKey<FormState> SignInFormKey = GlobalKey<FormState>();
   TextEditingController firstNameController,
       lastNameController,
       passwordController,
-      membershipNumberController,
-      newPasswordController;
+      membershipNumberController;
+  // newPasswordController;
   String phoneNumber = '';
+  String email = '';
   String phoneIsoCode = 'EG';
-  bool _isSignedUp = false;
   Users currUser;
   AmplifyAuthCognito auth;
   String displayState;
   String authState = 'User not signed in';
-  String lastHubEvent = '';
   AmplifyException error;
-  String _signUpError = "";
-  // final oldPasswordController = TextEditingController();
 
   onInit() {
     super.onInit();
   }
 
-  void updatePassword(String newPassword) async {
-    try {
-      await Amplify.Auth.updatePassword(
-          newPassword: newPassword, oldPassword: 'password');
-      showResult('Password Updated');
-      changeDisplay('SIGNED_IN');
-    } on AmplifyException catch (e) {
-      print('Error :' + e.message.toString());
-      setError(e);
-    }
+  bool validateEmail(String email) {
+    return RegExp(
+            r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+        .hasMatch(email);
   }
 
   void showCreateUser() async {
@@ -71,7 +60,7 @@ class AuthService extends GetxController {
   }
 
   void setError(AuthException error) {
-    _signUpError = error.message;
+    var _signUpError = error.message;
     update();
   }
 
@@ -93,6 +82,7 @@ class AuthService extends GetxController {
     try {
       var res = await Amplify.Auth.getCurrentUser();
       showResult('Current User Name = ' + res.username);
+      update();
     } on AmplifyException catch (e) {
       setError(e);
     }
@@ -109,6 +99,7 @@ class AuthService extends GetxController {
 
   Future<bool> isSignedIn() async {
     AuthSession authSessions = await Amplify.Auth.fetchAuthSession();
+    update();
     return authSessions.isSignedIn;
   }
 
@@ -187,9 +178,9 @@ class AuthService extends GetxController {
       var response = await operation.response;
       var data = response.data;
       update();
-      print('Mutation result: ' + data);
+      print('Mutation result : ' + data);
     } on AmplifyException catch (e) {
-      print('Mutation failed: $e');
+      print('Mutation failed : $e');
       return false;
     }
   }

@@ -5,10 +5,11 @@ import 'package:amplify_flutter/amplify.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:international_phone_input/international_phone_input.dart';
-import 'package:palm_hills_club/services/auth_service.dart';
+import 'package:palm_hills_club/controllers/authController.dart';
+import 'package:palm_hills_club/helpers/loadingOverlay.dart';
 
 import '../constance.dart';
-import 'forgot_password.dart';
+import 'forgotPassword.dart';
 import 'home.dart';
 import 'signup.dart';
 
@@ -34,10 +35,9 @@ final usernameController = TextEditingController();
 TextEditingController passwordController = TextEditingController();
 String phoneNumber;
 String phoneIsoCode = 'EG';
-// AuthProvider provider = AuthProvider.amazon;
 
 class _SignInState extends State<SignIn> {
-  bool _obscureText = true;
+  bool _isObscure = true;
 
   onPhoneNumberChange(
       String number, String internationalizedPhoneNumber, String isoCode) {
@@ -48,42 +48,124 @@ class _SignInState extends State<SignIn> {
     print('result phone onPhoneNumberChange: ' + phoneNumber.toString());
   }
 
-  void _toggle() {
-    setState(() {
-      _obscureText = !_obscureText;
-    });
-  }
-
-  Future<bool> signInWithPhoneNumberAndPassword(
+  Future<String> signInWithPhoneNumberAndPassword(
       String username, String password) async {
-    // if (phoneNumber.isEmpty) {
-    //   Get.bottomSheet(Container(
-    //       height: 100,
-    //       color: AppBackgroundColor,
-    //       child: Center(
-    //         child: Text(
-    //           'All fields are required',
-    //           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-    //         ),
-    //       )));
-    // } else if (phoneNumber.isNotEmpty && phoneNumber.isPhoneNumber) {
-    try {
-      await Amplify.Auth.signOut();
-      SignInResult res = await Amplify.Auth.signIn(
-        username: phoneNumber,
-        password: passwordController.text.trim(),
-      );
-      print('Sign IN Result : ' + res.isSignedIn.toString());
-      if (res.isSignedIn) {
-        passwordController.clear();
-        Get.offAll(() => Home());
-      }
+    if (password.isEmpty || username.isNull) {
+      Get.bottomSheet(Container(
+          height: 100,
+          color: AppBackgroundColor,
+          child: Center(
+            child: Text(
+              'All fields are required',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+          )));
+    } else if (phoneNumber.isNotEmpty &&
+        phoneNumber.isPhoneNumber &&
+        password.isNotEmpty) {
+      // final overlay = LoadingOverlay.of(context);
 
-      return res.isSignedIn;
-    } on AmplifyException catch (e) {
-      throw e;
+      try {
+        await Amplify.Auth.signOut();
+        SignInResult res =
+            await LoadingOverlay.of(context).during(Amplify.Auth.signIn(
+          username: username,
+          password: password,
+        ));
+        print('Sign IN Result : ' + res.isSignedIn.toString());
+        if (res.isSignedIn) {
+          passwordController.clear();
+          Get.offAll(() => Home());
+        }
+
+        // return res.isSignedIn;
+      } on AuthException catch (e) {
+        print(e);
+
+        if (e.message == 'Incorrect username or password.' ||
+            e.message == 'Failed since user is not authorized.')
+          return Get.defaultDialog(
+            backgroundColor: Colors.transparent,
+            // actions: [okButton],
+            title: '',
+            content: Column(
+              children: [
+                Container(
+                  decoration: const BoxDecoration(
+                    color: AppBackgroundColor,
+                    borderRadius: BorderRadius.only(
+                      topLeft: const Radius.circular(30.0),
+                      topRight: const Radius.circular(30.0),
+                    ),
+                  ),
+                  width: double.infinity,
+                  height: 150,
+                  child: Padding(
+                    padding: const EdgeInsets.all(25.0),
+                    child: Center(
+                      child: Column(
+                        children: [
+                          Text(
+                            'Failed',
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontFamily: 'Gotham',
+                                fontWeight: FontWeight.bold,
+                                fontSize: 25.0),
+                          ),
+                          SizedBox(height: 10.0),
+                          Center(
+                            child: RichText(
+                              text: TextSpan(
+                                text: e.message,
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontFamily: 'Gotham',
+                                    fontWeight: FontWeight.normal,
+                                    fontSize: 18.0),
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  decoration: const BoxDecoration(
+                    color: Colors.black,
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: const Radius.circular(30.0),
+                      bottomRight: const Radius.circular(30.0),
+                    ),
+                  ),
+                  // padding: EdgeInsets.zero,
+                  // margin: EdgeInsets.zero,
+                  width: double.infinity,
+                  height: 60,
+                  // color: cardCustom,
+                  child: TextButton(
+                    // style: ButtonStyle(),
+                    child: Text(
+                      "Okay",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontFamily: 'Gotham',
+                          fontWeight: FontWeight.normal,
+                          fontSize: 26.0),
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ),
+              ],
+            ),
+          );
+        LoadingOverlay.of(context).hide();
+      }
     }
-    // }
   }
 
   @override
@@ -175,16 +257,20 @@ class _SignInState extends State<SignIn> {
                             width: MediaQuery.of(context).size.width * 0.9,
                             height: MediaQuery.of(context).size.height * 0.07,
                             child: TextFormField(
-                              obscureText: _obscureText,
-                              decoration: const InputDecoration(
+                              obscureText: _isObscure,
+                              decoration: InputDecoration(
                                   focusColor: Colors.white,
                                   fillColor: Colors.white,
                                   filled: true,
                                   suffixIcon: IconButton(
-                                    icon: Icon(Icons.remove_red_eye),
-                                    // onPressed: () {},
-                                    // Icons.remove_red_eye,
-                                    // color: Colors.black,
+                                    icon: Icon(_isObscure
+                                        ? Icons.visibility
+                                        : Icons.visibility_off),
+                                    onPressed: () {
+                                      setState(() {
+                                        _isObscure = !_isObscure;
+                                      });
+                                    },
                                   ),
                                   border: OutlineInputBorder(
                                     borderRadius: const BorderRadius.all(
@@ -253,46 +339,59 @@ class _SignInState extends State<SignIn> {
                             ),
                           ),
                           SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.1,
+                            height: MediaQuery.of(context).size.height * 0.05,
                           ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 40.0,
+                          TextButton(
+                            key: Key('goto-signup-button'),
+                            onPressed: () {},
+                            // widget.showCreateUser,
+                            child: Text(
+                              'Use authentication code',
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18.0),
                             ),
-                            child: Center(
-                              child: Row(
-                                children: [
-                                  Text(
-                                    'Dont have an account?',
+                          ),
+                          SizedBox(
+                            height: MediaQuery.of(context).size.height * 0.03,
+                          ),
+                          Center(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'Dont have an account?',
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 16.0,
+                                  ),
+                                ),
+                                TextButton(
+                                  key: Key('goto-signup-button'),
+                                  onPressed: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => signUp(
+                                                widget.showResult,
+                                                widget.changeDisplay,
+                                                widget.setError,
+                                                AuthController().backToSignIn,
+                                                AuthController().phoneNumber,
+                                                AuthController().email)));
+                                  },
+                                  // widget.showCreateUser,
+                                  child: Text(
+                                    'Sign Up',
                                     style: TextStyle(
-                                      color: Colors.grey,
-                                      fontSize: 16.0,
-                                    ),
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18.0),
                                   ),
-                                  TextButton(
-                                    key: Key('goto-signup-button'),
-                                    onPressed: () {
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) => signUp(
-                                                  widget.showResult,
-                                                  widget.changeDisplay,
-                                                  widget.setError,
-                                                  AuthService().backToSignIn,
-                                                  AuthService().phoneNumber)));
-                                    },
-                                    // widget.showCreateUser,
-                                    child: Text(
-                                      'Sign Up',
-                                      style: TextStyle(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 18.0),
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ),
                         ],

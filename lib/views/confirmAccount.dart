@@ -5,13 +5,13 @@ import 'package:amplify_flutter/amplify.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:palm_hills_club/services/auth_service.dart';
-import 'package:palm_hills_club/views/signup.dart';
+import 'package:palm_hills_club/controllers/authController.dart';
+import 'package:palm_hills_club/helpers/loadingOverlay.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 
 import '../constance.dart';
 import 'account.dart';
-import 'contact_us.dart';
+import 'contactUs.dart';
 
 // ignore: camel_case_types
 class confirmAccount extends StatefulWidget {
@@ -20,10 +20,17 @@ class confirmAccount extends StatefulWidget {
   final Function setError;
   final Function backToSignIn;
   String phoneNumber;
+  final String email;
   TextEditingController membershipNumberController;
 
-  confirmAccount(this.showResult, this.changeDisplay, this.setError,
-      this.backToSignIn, this.phoneNumber, this.membershipNumberController);
+  confirmAccount(
+      this.showResult,
+      this.changeDisplay,
+      this.setError,
+      this.backToSignIn,
+      this.phoneNumber,
+      this.membershipNumberController,
+      this.email);
   @override
   _confirmAccountState createState() => _confirmAccountState();
 }
@@ -46,34 +53,43 @@ class _confirmAccountState extends State<confirmAccount> {
         'result phone Passed: ' + widget.membershipNumberController.toString());
   }
 
+  @override
+  void dispose() {
+    confirmationCodeController.dispose();
+    super.dispose();
+  }
+
   Future<bool> _confirmSignUp() async {
     setState(() {
       signUpError = "";
     });
     print('result phone onPhoneNumberChange: ' + widget.phoneNumber.toString());
     try {
-      // SignUpResult res = await Amplify.Auth.confirmSignUp(
-      //     username: widget.phoneNumber.trim(),
-      //     confirmationCode: confirmationCodeController.text.trim());
-      // if (res.isSignUpComplete) {
-      await Amplify.Auth.signOut();
+      SignUpResult res = await LoadingOverlay.of(context).during(
+          Amplify.Auth.confirmSignUp(
+              username: widget.phoneNumber,
+              confirmationCode: confirmationCodeController.text.trim()));
+      if (res.isSignUpComplete) {
+        await Amplify.Auth.signOut();
 
-      final bool signInRes = await AuthService()
-          .loginWithEmailPassword(widget.phoneNumber, 'password');
+        final bool signInRes = await LoadingOverlay.of(context).during(
+            AuthController()
+                .loginWithEmailPassword(widget.phoneNumber, 'password'));
 
-      print('SignIn result : ' + signInRes.toString());
-      await AuthService()
-          .saveUser(widget.phoneNumber, widget.membershipNumberController.text);
-      Get.to(() => accountSetup(
-            phoneNumber: widget.phoneNumber,
-          ));
+        print('SignIn result : ' + signInRes.toString());
+        await AuthController()
+            .saveUser(
+                widget.phoneNumber, widget.membershipNumberController.text)
+            .then((value) => Get.to(() => accountSetup(
+                  phoneNumber: widget.phoneNumber,
+                )));
 
-      return signInRes;
-      // }
+        return signInRes;
+      }
       Navigator.pop(context, true);
     } on AuthException catch (error) {
-      print('SignIn result : ' + error.toString());
-      AuthService().setError(error);
+      print('SignIn error : ' + error.toString());
+      AuthController().setError(error);
     }
   }
 
@@ -84,6 +100,20 @@ class _confirmAccountState extends State<confirmAccount> {
       );
       widget.showResult(
           'Sign Up Code Resent to ' + res.codeDeliveryDetails.destination);
+      print('Sign Up Code Resent medium ' +
+          res.codeDeliveryDetails.deliveryMedium);
+      Get.bottomSheet(Container(
+          height: 100,
+          color: AppBackgroundColor,
+          child: Center(
+            child: Text(
+              'code has been sent to your Email',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.normal,
+              ),
+            ),
+          )));
     } on AmplifyException catch (e) {
       widget.setError(e);
     }
@@ -242,28 +272,6 @@ class _confirmAccountState extends State<confirmAccount> {
                         },
                       ),
                     ),
-                    // TextFormField(
-                    //   key: Key('confirm-signup-code-input'),
-                    //   controller: confirmationCodeController,
-                    //   autofocus: false,
-                    //   keyboardType: TextInputType.number,
-                    //   cursorColor: Colors.black,
-                    //   decoration: InputDecoration(
-                    //       hintStyle: TextStyle(
-                    //           fontSize: 40.0,
-                    //           decoration: TextDecoration.underline),
-                    //       hintText: '- - -  - - -',
-                    //       fillColor: AppBackgroundColor,
-                    //       filled: true,
-                    //       alignLabelWithHint: true),
-                    //   // The validator receives the text that the user has entered.
-                    //   validator: (value) {
-                    //     if (value == null || value.isEmpty) {
-                    //       return 'Please enter your password';
-                    //     }
-                    //     return null;
-                    //   },
-                    // ),
                     SizedBox(
                       height: MediaQuery.of(context).size.height * 0.03,
                     ),
@@ -311,34 +319,32 @@ class _confirmAccountState extends State<confirmAccount> {
                     SizedBox(
                       height: MediaQuery.of(context).size.height * 0.06,
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 70.0,
-                      ),
-                      child: Center(
-                        child: Row(
-                          children: [
-                            Text(
-                              'Having a trouble?',
+                    Center(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Having a trouble?',
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 16.0,
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Get.to(() => ContactUs());
+                            },
+                            child: Text(
+                              'Contact Us',
                               style: TextStyle(
-                                color: Colors.grey,
-                                fontSize: 16.0,
-                              ),
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18.0),
                             ),
-                            TextButton(
-                              onPressed: () {
-                                Get.to(() => ContactUs());
-                              },
-                              child: Text(
-                                'Contact Us',
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18.0),
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
