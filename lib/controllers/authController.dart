@@ -5,20 +5,13 @@ import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 import 'package:amplify_flutter/amplify.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:palm_hills_club/models/Users.dart';
 
 class AuthController extends GetxController {
   final GlobalKey<FormState> SignInFormKey = GlobalKey<FormState>();
-  TextEditingController firstNameController,
-      lastNameController,
-      passwordController,
-      membershipNumberController;
-  // newPasswordController;
+
   String phoneNumber = '';
   String email = '';
   String phoneIsoCode = 'EG';
-  Users currUser;
-  AmplifyAuthCognito auth;
   String displayState;
   String authState = 'User not signed in';
   AmplifyException error;
@@ -88,15 +81,6 @@ class AuthController extends GetxController {
     }
   }
 
-  // Future<void> signOut() async {
-  //   try {
-  //     await Amplify.Auth.signOut();
-  //     await Amplify.DataStore.clear();
-  //   } on AuthException catch (e) {
-  //     print(e.message);
-  //   }
-  // }
-
   Future<bool> isSignedIn() async {
     AuthSession authSessions = await Amplify.Auth.fetchAuthSession();
     update();
@@ -106,12 +90,7 @@ class AuthController extends GetxController {
   void backToSignIn() async {
     changeDisplay('SHOW_SIGN_IN');
   }
-  // Future<AuthUser> getCurrentUser() async {
-  //   AuthUser authUser = await Amplify.Auth.getCurrentUser();
-  //   return authUser;
-  // }
 
-  @override
   Future<bool> loginWithEmailPassword(
     String email,
     String password,
@@ -132,24 +111,6 @@ class AuthController extends GetxController {
   Future saveUser(String username, String membershipNum) async {
     try {
       print(username);
-      // await Amplify.Auth.signOut();
-      // SignInResult res = await Amplify.Auth.signIn(
-      //   username: username,
-      //   password: 'password',
-      // );
-      // print(res.isSignedIn);
-      // AuthUser authUser = await Amplify.Auth.getCurrentUser();
-      // print('Auth User ID : ' + authUser.username);
-      //
-      // final authUserAttributes = await Amplify.Auth.fetchUserAttributes();
-      // String phoneNumber;
-      // String userId;
-      // authUserAttributes.forEach((element) {
-      //   if (element.userAttributeKey == "phoneNumber")
-      //     phoneNumber = element.value;
-      //   else if (element.userAttributeKey == "sub") userId = element.value;
-      // });
-      // print(authUserAttributes);
       String graphQLDocument =
           '''mutation CreateUser(\$club_id: Int!, \$username: AWSPhone!, \$membershipNumber: String,\$phoneNumber: AWSPhone, \$isVerified : Boolean, \$userType: Int!,) {
                 createUser(input: {club_id: \$club_id,username: \$username,
@@ -184,20 +145,4 @@ class AuthController extends GetxController {
       return false;
     }
   }
-
-  // Future<bool> confirmRegisterWithCode(
-  //     String username, String password, String code) async {
-  //   try {
-  //     SignUpResult res = await Amplify.Auth.confirmSignUp(
-  //         username: username, confirmationCode: code);
-  //
-  //     if (res.isSignUpComplete) {
-  //       final signInRes = await loginWithEmailPassword(username, password);
-  //       await saveUser(username);
-  //       return signInRes;
-  //     }
-  //   } catch (e) {
-  //     throw e;
-  //   }
-  // }
 }

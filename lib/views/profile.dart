@@ -1,12 +1,30 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:palm_hills_club/views/home.dart';
-
 import '../constance.dart';
 
 class Profile extends StatelessWidget {
+  Profile({Key key}) : super(key: key);
   final _formKey = GlobalKey<FormState>();
-
+  final snackBar = SnackBar(
+    backgroundColor: cardCustom,
+    behavior: SnackBarBehavior.floating,
+    content: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const Text(
+          'User Yssen Mansoor',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(
+          height: 5.0,
+        ),
+        const Text('Successfully updated'),
+      ],
+    ),
+  );
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,10 +61,12 @@ class Profile extends StatelessWidget {
             ),
             onPressed: () {
               Get.to(() => Home());
-              Get.snackbar(
-                'User Yssen Mansoor',
-                'Successfully created',
-              );
+              Platform.isIOS
+                  ? Get.snackbar(
+                      'User Yssen Mansoor',
+                      'Successfully updated',
+                    )
+                  : ScaffoldMessenger.of(context).showSnackBar(snackBar);
             },
           ),
         ],

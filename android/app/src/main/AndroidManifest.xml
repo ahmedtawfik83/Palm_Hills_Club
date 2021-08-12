@@ -2,7 +2,7 @@
     package="com.example.palm_hills_club">
    <application
         android:label="palm_hills_club"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/launcher_icon">
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
